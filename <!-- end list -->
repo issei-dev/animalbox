@@ -1,204 +1,88 @@
-<!DOCTYPE html>
-<html lang="ja">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>動物図鑑</title>
-    <style>
-        body {
-            font-family: 'Arial', sans-serif;
-            background-color: #F8F0F8; /* 淡いピンク */
-            color: #333;
-            margin: 0;
-            padding: 20px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
-        .header {
-            width: 100%;
-            text-align: center;
-            margin-bottom: 20px;
-        }
-        h1 {
-            color: #E6A9C8; /* パステルピンク */
-        }
-        .stats {
-            margin-bottom: 20px;
-            font-size: 16px;
-            color: #555;
-        }
-        .stats span {
-            font-weight: bold;
-        }
-        .filter-container {
-            margin-bottom: 20px;
-        }
-        .filter-container select {
-            padding: 8px;
-            border-radius: 5px;
-            border: 1px solid #ccc;
-            background-color: #B0E0E6; /* パステルブルー */
-            color: #333;
-            font-size: 16px;
-        }
-        .zoo-container {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-            gap: 20px;
-            width: 100%;
-            max-width: 900px;
-        }
-        .animal-card {
-            background-color: #fff;
-            border-radius: 10px;
-            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-            overflow: hidden;
-            text-align: center;
-            padding: 10px;
-            transition: transform 0.2s;
-        }
-        .animal-card:hover {
-            transform: translateY(-5px);
-        }
-        .animal-card img {
-            width: 100%;
-            height: 100px;
-            object-fit: cover;
-            border-radius: 8px;
-            margin-bottom: 10px;
-        }
-        .animal-card h3 {
-            font-size: 18px;
-            margin: 0 0 5px 0;
-        }
-        .animal-card p {
-            font-size: 14px;
-            color: #777;
-            margin: 0;
-        }
-    </style>
-</head>
-<body>
-    <div class="header">
-        <h1>どうぶつずかん</h1>
-        <div class="stats">
-            集めた数: <span id="collected-count">0</span> / <span id="total-count">0</span> |
-            収集率: <span id="collection-rate">0%</span>
-        </div>
-    </div>
+// 図鑑データの定義（前回と同じものを利用）
+const animals = {
+    dog: [
+        { name: "しばいぬ", image: "https://placehold.jp/150x100.png?text=柴犬" },
+        { name: "ちわわ", image: "https://placehold.jp/150x100.png?text=チワワ" },
+        { name: "ぽめらにあん", image: "https://placehold.jp/150x100.png?text=ポメラニアン" }
+    ],
+    cat: [
+        { name: "みけねこ", image: "https://placehold.jp/150x100.png?text=三毛猫" },
+        { name: "まんちかん", image: "https://placehold.jp/150x100.png?text=マンチカン" },
+        { name: "さばとら", image: "https://placehold.jp/150x100.png?text=サバトラ" }
+    ],
+    bird: [
+        { name: "すずめ", image: "https://placehold.jp/150x100.png?text=スズメ" },
+        { name: "いんこ", image: "https://placehold.jp/150x100.png?text=インコ" },
+        { name: "ふくろう", image: "https://placehold.jp/150x100.png?text=フクロウ" }
+    ]
+};
 
-    <div class="filter-container">
-        <label for="animal-type">種別:</label>
-        <select id="animal-type" onchange="filterAnimals()">
-            <option value="all">すべて</option>
-            <option value="dog">いぬ</option>
-            <option value="cat">ねこ</option>
-            <option value="bird">とり</option>
-        </select>
-    </div>
+// 収集した動物のリスト（初期状態）
+let collectedAnimals = JSON.parse(localStorage.getItem('collectedAnimals')) || [];
+const gachaCost = 30;
+let points = parseInt(localStorage.getItem('points')) || 100; // 初期ポイント設定
 
-    <div id="zoo" class="zoo-container">
-        </div>
+const pointsDisplay = document.getElementById('points-count');
+const gachaButton = document.getElementById('gacha-button');
+const resultText = document.getElementById('result-text');
+const resultImage = document.getElementById('result-image');
 
-    <script>
-        // サンプルデータ
-        const animals = {
-            dog: [
-                { name: "しばいぬ", image: "https://placehold.jp/150x100.png?text=柴犬", description: "忠実で賢い日本の犬だよ。" },
-                { name: "ちわわ", image: "https://placehold.jp/150x100.png?text=チワワ", description: "世界で一番小さい犬の仲間だよ。" },
-                // 他の犬のデータもここに追加
-            ],
-            cat: [
-                { name: "みけねこ", image: "https://placehold.jp/150x100.png?text=三毛猫", description: "三色の毛を持つ、幸運を呼ぶ猫だよ。" },
-                { name: "まんちかん", image: "https://placehold.jp/150x100.png?text=マンチカン", description: "足が短いのが特徴で、とっても愛らしいね。" },
-                // 他の猫のデータもここに追加
-            ],
-            bird: [
-                { name: "すずめ", image: "https://placehold.jp/150x100.png?text=スズメ", description: "日本でよく見かける、小さな鳥だよ。" },
-                { name: "いんこ", image: "https://placehold.jp/150x100.png?text=インコ", description: "おしゃべりが得意な、カラフルな鳥だよ。" },
-                // 他の鳥のデータもここに追加
-            ]
-        };
+// 全ての動物リストを平坦化して取得
+function getAllAnimals() {
+    return Object.values(animals).flat();
+}
 
-        // 収集した動物のID（この部分はゲームの進行状況に応じて変化します）
-        const collectedAnimals = {
-            dog: [ "しばいぬ", "ちわわ" ],
-            cat: [ "みけねこ" ],
-            bird: []
-        };
+// まだ入手していない動物をランダムに選択
+function getUncollectedAnimal() {
+    const allAnimals = getAllAnimals();
+    const uncollected = allAnimals.filter(animal => !collectedAnimals.includes(animal.name));
+    if (uncollected.length === 0) {
+        return null; // 未入手動物がいない
+    }
+    const randomIndex = Math.floor(Math.random() * uncollected.length);
+    return uncollected[randomIndex];
+}
 
-        function renderZoo(filteredAnimals) {
-            const zooContainer = document.getElementById('zoo');
-            zooContainer.innerHTML = ''; // 既存の内容をクリア
+// ガチャを引く関数
+function drawGacha() {
+    if (points < gachaCost) {
+        resultText.textContent = "ポイントがたりないよ...！";
+        resultImage.style.display = 'none';
+        return;
+    }
 
-            if (filteredAnimals.length === 0) {
-                zooContainer.innerHTML = '<p style="text-align: center; color: #777;">この種別の動物はまだ集めていないみたい。</p>';
-                return;
-            }
+    const newAnimal = getUncollectedAnimal();
 
-            filteredAnimals.forEach(animal => {
-                const isCollected = isAnimalCollected(animal);
-                const card = document.createElement('div');
-                card.classList.add('animal-card');
-                if (!isCollected) {
-                    card.style.opacity = '0.5'; // 未収集の動物は半透明にする
-                }
+    if (!newAnimal) {
+        resultText.textContent = "あたらしいどうぶつさんをまとう！";
+        gachaButton.disabled = true;
+        resultImage.style.display = 'none';
+        return;
+    }
 
-                const image = document.createElement('img');
-                image.src = isCollected ? animal.image : 'https://placehold.jp/150x100.png?text=???' ; // 未収集の場合はプレースホルダー
-                image.alt = animal.name;
+    // ポイントを消費
+    points -= gachaCost;
+    pointsDisplay.textContent = points;
+    localStorage.setItem('points', points);
 
-                const name = document.createElement('h3');
-                name.textContent = isCollected ? animal.name : 'なまえ：？？？';
+    // 動物を入手済みリストに追加
+    collectedAnimals.push(newAnimal.name);
+    localStorage.setItem('collectedAnimals', JSON.stringify(collectedAnimals));
 
-                const description = document.createElement('p');
-                description.textContent = isCollected ? animal.description : 'せつめい：？？？';
+    // 結果表示
+    resultText.textContent = `${newAnimal.name} をゲットしたよ！`;
+    resultImage.src = newAnimal.image;
+    resultImage.style.display = 'block';
+}
 
-                card.appendChild(image);
-                card.appendChild(name);
-                card.appendChild(description);
-                zooContainer.appendChild(card);
-            });
-        }
+// UIの初期状態を設定
+function initializeUI() {
+    pointsDisplay.textContent = points;
+    if (getUncollectedAnimal() === null) {
+        resultText.textContent = "あたらしいどうぶつさんをまとう！";
+        gachaButton.disabled = true;
+    }
+}
 
-        function isAnimalCollected(animal) {
-            for (const type in collectedAnimals) {
-                if (collectedAnimals[type].includes(animal.name)) {
-                    return true;
-                }
-            }
-            return false;
-        }
+document.addEventListener('DOMContentLoaded', initializeUI);
 
-        function updateStats() {
-            const totalAnimals = Object.values(animals).flat().length;
-            const collectedCount = Object.values(collectedAnimals).flat().length;
-            const collectionRate = (collectedCount / totalAnimals * 100).toFixed(1);
-
-            document.getElementById('collected-count').textContent = collectedCount;
-            document.getElementById('total-count').textContent = totalAnimals;
-            document.getElementById('collection-rate').textContent = `${collectionRate}%`;
-        }
-        
-        function filterAnimals() {
-            const selectedType = document.getElementById('animal-type').value;
-            let filteredAnimals = [];
-            if (selectedType === 'all') {
-                for (const type in animals) {
-                    filteredAnimals = filteredAnimals.concat(animals[type]);
-                }
-            } else {
-                filteredAnimals = animals[selectedType] || [];
-            }
-            renderZoo(filteredAnimals);
-        }
-
-        // 初期表示
-        window.onload = () => {
-            updateStats();
-            filterAnimals();
-        };
-    </script>
-</body>
-</html>
