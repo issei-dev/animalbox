@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>女の子向け学習アプリ</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #F8F0F8; /* 淡いピンク */
+            color: #333;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .header {
+            width: 100%;
+            background-color: #E6E6FA; /* ラベンダー色 */
+            padding: 10px 20px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .header .version {
+            font-size: 14px;
+            color: #777;
+        }
+        .container {
+            padding: 20px;
+            text-align: center;
+        }
+        .menu-list {
+            list-style: none;
+            padding: 0;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 20px;
+            margin-top: 30px;
+        }
+        .menu-item {
+            width: 150px;
+            height: 150px;
+            background-color: #B0E0E6; /* パステルブルー */
+            border-radius: 20px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            box-shadow: 0 5px 10px rgba(0,0,0,0.1);
+            transition: transform 0.2s;
+            cursor: pointer;
+        }
+        .menu-item:hover {
+            transform: translateY(-5px);
+        }
+        .menu-icon {
+            font-size: 50px;
+            margin-bottom: 10px;
+        }
+        .menu-text {
+            font-size: 18px;
+            font-weight: bold;
+            color: #555;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="header">
+        <h1>女の子向け学習アプリ</h1>
+        <span class="version">v1.00</span>
+    </div>
+
+    <div class="container">
+        <ul class="menu-list">
+            <li class="menu-item" onclick="alert('スタンプ機能のページへ移動')">
+                <span class="menu-icon"> stamps </span>
+                <span class="menu-text">スタンプ機能</span>
+            </li>
+            <li class="menu-item" onclick="alert('ガチャ機能のページへ移動')">
+                <span class="menu-icon"> gift </span>
+                <span class="menu-text">ガチャ機能</span>
+            </li>
+            <li class="menu-item" onclick="alert('図鑑機能のページへ移動')">
+                <span class="menu-icon"> book </span>
+                <span class="menu-text">図鑑機能</span>
+            </li>
+            <li class="menu-item" onclick="alert('カレンダー機能のページへ移動')">
+                <span class="menu-icon"> calendar_today </span>
+                <span class="menu-text">カレンダー機能</span>
+            </li>
+        </ul>
+    </div>
+
+</body>
+</html>
