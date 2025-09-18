@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>女の子向け学習アプリ</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #F8F0F8;
+            color: #333;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+        }
+        .header {
+            width: 100%;
+            background-color: #E6E6FA;
+            padding: 10px 20px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .header .version {
+            font-size: 14px;
+            color: #777;
+        }
+        .container {
+            padding: 20px;
+            text-align: center;
+            width: 100%;
+            max-width: 900px;
+            box-sizing: border-box;
+        }
+        .menu-list {
+            list-style: none;
+            padding: 0;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 20px;
+            margin-top: 30px;
+        }
+        .menu-item {
+            width: 150px;
+            height: 150px;
+            background-color: #B0E0E6;
+            border-radius: 20px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            box-shadow: 0 5px 10px rgba(0,0,0,0.1);
+            transition: transform 0.2s;
+            cursor: pointer;
+        }
+        .menu-item:hover {
+            transform: translateY(-5px);
+        }
+        .menu-icon {
+            font-size: 50px;
+            margin-bottom: 10px;
+        }
+        .menu-text {
+            font-size: 18px;
+            font-weight: bold;
+            color: #555;
+        }
+        .page {
+            display: none;
+        }
+        .page.active {
+            display: block;
+        }
+        
+        /* ページごとのスタイル */
+        .page-header {
+            font-size: 24px;
+            color: #E6A9C8;
+            margin-bottom: 20px;
+        }
+
+        /* スタンプページ */
+        .stats-display {
+            font-size: 18px;
+            margin-bottom: 20px;
+            line-height: 1.6;
+        }
+        .stats-display span {
+            font-weight: bold;
+            color: #8A2BE2;
+        }
+        .action-button {
+            padding: 15px 30px;
+            font-size: 20px;
+            color: #fff;
+            background-color: #B0E0E6;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        .action-button:hover:not(:disabled) {
+            background-color: #87CEEB;
+        }
+        .action-button:disabled {
+            background-color: #ccc;
+            cursor: not-allowed;
+        }
+
+        /* ガチャページ */
+        .points-display {
+            font-size: 24px;
+            margin-bottom: 20px;
+            color: #555;
+        }
+        #result {
+            margin-top: 30px;
+            padding: 20px;
+            background-color: #F0F8FF;
+            border-radius: 10px;
+            min-height: 150px;
+        }
+        #result-text {
+            font-size: 20px;
+            font-weight: bold;
+            color: #4B0082;
+        }
+        #result-image {
+            max-width: 150px;
+            height: auto;
+            border-radius: 10px;
+            margin-top: 15px;
+        }
+
+        /* 図鑑ページ */
+        .stats {
+            margin-bottom: 20px;
+            font-size: 16px;
+            color: #555;
+        }
+        .stats span {
+            font-weight: bold;
+        }
+        .filter-container {
+            margin-bottom: 20px;
+        }
+        .filter-container select {
+            padding: 8px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+            background-color: #B0E0E6;
+            color: #333;
+            font-size: 16px;
+        }
+        .zoo-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            gap: 20px;
+        }
+        .animal-card {
+            background-color: #fff;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            overflow: hidden;
+            text-align: center;
+            padding: 10px;
+            transition: transform 0.2s;
+        }
+        .animal-card:hover {
+            transform: translateY(-5px);
+        }
+        .animal-card img {
+            width: 100%;
+            height: 100px;
+            object-fit: cover;
+            border-radius: 8px;
+            margin-bottom: 10px;
+        }
+        .animal-card h3 {
+            font-size: 18px;
+            margin: 0 0 5px 0;
+        }
+        .animal-card p {
+            font-size: 14px;
+            color: #777;
+            margin: 0;
+        }
+
+        /* カレンダーページ */
+        .calendar-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        .calendar-header button {
+            background-color: #B0E0E6;
+            color: #fff;
+            border: none;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            font-size: 24px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        .calendar-header button:hover {
+            background-color: #87CEEB;
+        }
+        .calendar-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 5px;
+        }
+        .day-header {
+            font-weight: bold;
+            color: #E6A9C8;
+        }
+        .calendar-day {
+            background-color: #F0F8FF;
+            border-radius: 10px;
+            padding: 10px;
+            min-height: 50px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+        .calendar-day.current-month {
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+        .calendar-day.current-month:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+        .calendar-day .stamp-count {
+            font-size: 14px;
+            font-weight: bold;
+            color: #8A2BE2;
+            margin-top: 5px;
+        }
+        
+        /* ポップアップ（モーダル）のスタイル */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.4);
+            justify-content: center;
+            align-items: center;
+        }
+        .modal-content {
+            background-color: #fff;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+            text-align: center;
+            max-width: 300px;
+            width: 80%;
+        }
+        .modal-close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+        }
+        .modal-close:hover,
+        .modal-close:focus {
+            color: #000;
+            text-decoration: none;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>女の子向け学習アプリ</h1>
+        <span class="version">v1.00</span>
+    </div>
+
+    <div id="home-page" class="page active container">
+        <ul class="menu-list">
+            <li class="menu-item" data-page="stamp-page">
+                <span class="menu-icon"> stamps </span>
+                <span class="menu-text">スタンプ機能</span>
+            </li>
+            <li class="menu-item" data-page="gacha-page">
+                <span class="menu-icon"> gift </span>
+                <span class="menu-text">ガチャ機能</span>
+            </li>
+            <li class="menu-item" data-page="zoo-page">
+                <span class="menu-icon"> book </span>
+                <span class="menu-text">図鑑機能</span>
+            </li>
+            <li class="menu-item" data-page="calendar-page">
+                <span class="menu-icon"> calendar_today </span>
+                <span class="menu-text">カレンダー機能</span>
+            </li>
+        </ul>
+    </div>
+
+    <div id="stamp-page" class="page container">
+        <h2 class="page-header">きょうのスタンプ</h2>
+        <div class="stats-display">
+            きょうのスタンプ回数: <span id="stamp-count">0</span>回<br>
+            いまのえさポイント: <span id="points-count-stamp">0</span>ポイント
+        </div>
+        <button id="stamp-button" class="action-button">勉強した！</button>
+    </div>
+
+    <div id="gacha-page" class="page container">
+        <h2 class="page-header">ガチャ</h2>
+        <div class="points-display">
+            いまのえさポイント: <span id="points-count-gacha">0</span>ポイント
+        </div>
+        <button id="gacha-button" class="action-button">ガチャをまわす (30ポイント)</button>
+        <div id="result">
+            <p id="result-text">ボタンを押して、どうぶつさんをゲットしよう！</p>
+            <img id="result-image" style="display:none;">
+        </div>
+    </div>
+
+    <div id="zoo-page" class="page container">
+        <h2 class="page-header">どうぶつずかん</h2>
+        <div class="stats">
+            集めた数: <span id="collected-count">0</span> / <span id="total-count">0</span> |
+            収集率: <span id="collection-rate">0%</span>
+        </div>
+        <div class="filter-container">
+            <label for="animal-type">種別:</label>
+            <select id="animal-type">
+                <option value="all">すべて</option>
+                <option value="dog">いぬ</option>
+                <option value="cat">ねこ</option>
+                <option value="bird">とり</option>
+            </select>
+        </div>
+        <div id="zoo" class="zoo-container"></div>
+    </div>
+
+    <div id="calendar-page" class="page container">
+        <h2 class="page-header">カレンダー</h2>
+        <div class="calendar-header">
+            <button id="prev-btn">&lt;</button>
+            <h2 id="month-year"></h2>
+            <button id="next-btn">&gt;</button>
+        </div>
+        <div class="calendar-grid">
+            <div class="day-header">日</div>
+            <div class="day-header">月</div>
+            <div class="day-header">火</div>
+            <div class="day-header">水</div>
+            <div class="day-header">木</div>
+            <div class="day-header">金</div>
+            <div class="day-header">土</div>
+        </div>
+        <div id="calendar-days" class="calendar-grid"></div>
+    </div>
+
+    <div id="stamp-detail-modal" class="modal">
+        <div class="modal-content">
+            <span class="modal-close">&times;</span>
+            <h3 id="modal-date"></h3>
+            <p>きょうのスタンプ回数: <strong id="modal-count"></strong>回</p>
+        </div>
+    </div>
+
+    <script src="animals.js"></script>
+    <script src="main.js"></script>
+</body>
+</html>
